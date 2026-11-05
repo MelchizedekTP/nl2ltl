@@ -42,6 +42,24 @@
       ],
       "date": "2026-11-05",
       "size_kb": 2214
+    },
+    {
+      "title": "LTL Alignment Viewer",
+      "path": "pages/var-input/deepseek-nl2fret-with-var-results.html",
+      "group": "Var input",
+      "description": "",
+      "tags": [],
+      "date": "2026-11-05",
+      "size_kb": 2263
+    },
+    {
+      "title": "LTL Alignment Viewer — Deepseek nl2ltl with var results",
+      "path": "pages/var-input/deepseek-nl2ltl-with-var-results.html",
+      "group": "Var input",
+      "description": "",
+      "tags": [],
+      "date": "2026-11-05",
+      "size_kb": 1981
     }
   ]
 }
