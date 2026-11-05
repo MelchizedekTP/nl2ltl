@@ -1,0 +1,47 @@
+{
+  "site": {
+    "title": "NL → LTL Results",
+    "description": "Viewers for natural-language to LTL translation experiments: generated formulas, Spot equivalence checks and trace-based verification."
+  },
+  "pages": [
+    {
+      "title": "Trace Check Viewer",
+      "path": "pages/traces/trace-check-viewer-910.html",
+      "group": "Traces",
+      "description": "Positive, negative and counterexample traces checked against the NL for 910 requirements. Positive 80.8% correct, negative 92.1%, overall 86.4%.",
+      "tags": [
+        "traces",
+        "910"
+      ],
+      "date": "2026-11-05",
+      "size_kb": 1369
+    },
+    {
+      "title": "NL → LTL (checked)",
+      "path": "pages/no-var-input/nl-to-ltl-checked-910.html",
+      "group": "With no var input",
+      "description": "Direct NL → LTL with DeepSeek, variables aligned and checked with Spot. 910 records: 675 equivalent, 228 not equivalent, 7 errors.",
+      "tags": [
+        "nl2ltl",
+        "deepseek",
+        "910"
+      ],
+      "date": "2026-11-05",
+      "size_kb": 1881
+    },
+    {
+      "title": "NL → FRETish → LTL (checked)",
+      "path": "pages/no-var-input/nl-to-fretish-to-ltl-checked-910.html",
+      "group": "With no var input",
+      "description": "NL → FRETish with DeepSeek, formalized to LTL by FRET, then checked with Spot. 910 records: 289 equivalent, 403 not equivalent, 218 errors.",
+      "tags": [
+        "fretish",
+        "fret",
+        "deepseek",
+        "910"
+      ],
+      "date": "2026-11-05",
+      "size_kb": 2214
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NL → LTL Results</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --fg:#1c2230; --muted:#5d6678; --line:#dde1e8;
+  --accent:#3b4cc0; --accent-soft:#e6e9fa; --chip:#eef0f4;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12151c; --panel:#1a1f29; --fg:#e3e7ef; --muted:#98a1b3; --line:#2c3341;
+  --accent:#8f9bff; --accent-soft:#262c4a; --chip:#232936; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#12151c; --panel:#1a1f29; --fg:#e3e7ef; --muted:#98a1b3; --line:#2c3341;
+  --accent:#8f9bff; --accent-soft:#262c4a; --chip:#232936; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--sans)}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 16px 64px}
+header{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+h1{font-size:28px;line-height:1.2;margin:0 0 8px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0;max-width:640px}
+.ltl{font-family:var(--mono);color:var(--accent)}
+button,input[type=search]{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px}
+button{padding:7px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:24px}
+input[type=search]{flex:1 1 260px;padding:9px 12px}
+input[type=search]:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:12px/1 var(--mono);padding:6px 9px;border-radius:999px;background:var(--chip);border:1px solid transparent;cursor:pointer;color:var(--muted)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+section{margin-bottom:32px}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px;display:flex;gap:8px;align-items:baseline}
+h2 .n{font-family:var(--mono);font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+a.card{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:inherit;text-decoration:none;transition:border-color .15s, transform .15s}
+a.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card .t{font-weight:600;font-size:16px;display:flex;justify-content:space-between;gap:8px}
+.card .t .ext{color:var(--muted);font-weight:400}
+.card .d{color:var(--muted);font-size:14px;flex:1}
+.card .m{display:flex;flex-wrap:wrap;gap:6px 10px;font:12px var(--mono);color:var(--muted)}
+.card .tag{background:var(--chip);padding:2px 7px;border-radius:999px}
+.empty,.err{color:var(--muted);padding:24px;border:1px dashed var(--line);border-radius:10px;text-align:center}
+.err code{font-family:var(--mono)}
+details.help{margin-top:40px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
+details.help summary{cursor:pointer;font-weight:600;color:var(--fg)}
+details.help pre{font:13px/1.5 var(--mono);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;color:var(--fg)}
+details.help code{font-family:var(--mono)}
+@media (max-width:600px){ h1{font-size:22px} .wrap{padding-top:24px} .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="title">NL → LTL Results</h1>
+      <p class="sub" id="desc"></p>
+    </div>
+    <button id="theme" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button>
+  </header>
+
+  <div class="tools">
+    <input type="search" id="q" placeholder="Search pages…" aria-label="Search pages">
+    <div class="chips" id="tags"></div>
+  </div>
+
+  <div id="list"><div class="empty">Loading pages…</div></div>
+
+  <details class="help">
+    <summary>How to add a page</summary>
+    <p><b>An HTML page:</b> put the <code>.html</code> file anywhere in <code>pages/</code> (a sub-folder becomes its group), then push. The GitHub Action runs <code>tools/build_pages.py</code>, which adds it to the list automatically. To set a nicer title or description, edit its entry in <code>pages.json</code>.</p>
+    <p><b>A link to another site:</b> add an entry with <code>url</code> instead of <code>path</code> to <code>pages.json</code>:</p>
+<pre>{
+  "title": "My other results",
+  "url": "https://example.com/results.html",
+  "group": "External",
+  "description": "Opens in a new tab.",
+  "tags": ["external"]
+}</pre>
+  </details>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let PAGES = [], TAG = null;
+
+(function(){
+  let t = null; try { t = localStorage.getItem("site-theme"); } catch(e){}
+  if (t) document.documentElement.dataset.theme = t;
+  $("#theme").onclick = () => {
+    const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("site-theme", next); } catch(e){}
+  };
+})();
+
+function size(kb){ return kb == null ? "" : kb >= 1024 ? (kb/1024).toFixed(1) + " MB" : kb + " KB"; }
+
+function render(){
+  const q = $("#q").value.trim().toLowerCase();
+  const shown = PAGES.filter(p => {
+    if (TAG && !(p.tags||[]).includes(TAG)) return false;
+    if (!q) return true;
+    return [p.title, p.description, p.group, ...(p.tags||[])].join(" ").toLowerCase().includes(q);
+  });
+  if (!shown.length){ $("#list").innerHTML = `<div class="empty">No pages match.</div>`; return; }
+
+  const groups = new Map();
+  shown.forEach(p => { const g = p.group || "Pages"; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(p); });
+
+  $("#list").innerHTML = [...groups].map(([g, items]) => `
+    <section><h2>${esc(g)} <span class="n">${items.length}</span></h2><div class="grid">
+    ${items.map(p => {
+      const ext = !!p.url && !p.path;
+      const href = ext ? p.url : p.path;
+      return `<a class="card" href="${esc(href)}"${ext ? ' target="_blank" rel="noopener"' : ""}>
+        <div class="t"><span>${esc(p.title)}</span>${ext ? '<span class="ext">↗</span>' : ""}</div>
+        ${p.description ? `<div class="d">${esc(p.description)}</div>` : '<div class="d"></div>'}
+        <div class="m">${(p.tags||[]).map(t => `<span class="tag">${esc(t)}</span>`).join("")}
+          ${p.date ? `<span>${esc(p.date)}</span>` : ""}${p.size_kb != null ? `<span>${size(p.size_kb)}</span>` : ""}</div>
+      </a>`; }).join("")}
+    </div></section>`).join("");
+}
+
+function renderTags(){
+  const tags = [...new Set(PAGES.flatMap(p => p.tags || []))].sort();
+  $("#tags").innerHTML = tags.map(t => `<button class="chip${t===TAG?" on":""}" data-t="${esc(t)}">${esc(t)}</button>`).join("");
+  $("#tags").querySelectorAll(".chip").forEach(b => b.onclick = () => { TAG = TAG === b.dataset.t ? null : b.dataset.t; renderTags(); render(); });
+}
+
+fetch("pages.json", {cache: "no-cache"})
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(m => {
+    if (m.site){
+      if (m.site.title){ $("#title").textContent = m.site.title; document.title = m.site.title; }
+      $("#desc").textContent = m.site.description || "";
+    }
+    PAGES = m.pages || [];
+    renderTags(); render();
+  })
+  .catch(() => {
+    $("#list").innerHTML = `<div class="err">Couldn't load <code>pages.json</code>. If you opened this file directly from disk,
+      run <code>python -m http.server</code> in this folder and open <code>http://localhost:8000</code>.</div>`;
+  });
+$("#q").oninput = render;
+</script>
+</body>
+</html>
